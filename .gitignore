@@ -1,2 +1,1 @@
-vendor/gems/*
-!vendor/gems/cache/
+bin
