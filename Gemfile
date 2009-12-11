@@ -1,5 +1,6 @@
 gem "rack", "1.0.1"
-gem 'extlib'
+gem "get_args"
+gem "facets"
 
 if RUBY_PLATFORM == "java"
   # nothing
