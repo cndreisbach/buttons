@@ -1,6 +1,5 @@
 require File.expand_path(File.join(File.dirname(__FILE__),
                                    '..', 'vendor', 'gems', 'environment'))
-require 'get_args'
 require 'facets'
 
 module Buttons
@@ -11,6 +10,7 @@ module Buttons
   end
 end
 
+require Buttons.dir('core_ext/string')
 require Buttons.dir('application')
-require Buttons.dir('button')
 require Buttons.dir('javascript')
+require Buttons.dir('button')

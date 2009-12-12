@@ -1,5 +1,5 @@
-require 'usher'
-require 'pp'
+require Buttons.dir('router')
+
 module Buttons
   def self.app
     @app ||= Buttons::Application.new
@@ -7,36 +7,46 @@ module Buttons
   end
   
   class Application
+    attr :middlewares
+
     def initialize
-      @router = Usher.new      
+      @router = Buttons::Router.new
+      @middlewares = []
     end
     
     def add_route(http_method, path, button, method)
-      @router.add_route(path, :requirements => {:method => http_method}).to(
-        :button => button, :method => method
-      )
+      @router.add_route(http_method, path, :button => button, :method => method)
     end
     
     def call(environment)
       rack_app = lambda { |env|
         request = ::Rack::Request.new(env)
-        response = @router.recognize(request, request.path_info)        
+        route = @router.recognize(request)
 
-        if response          
-          [200, {"Content-Type" => 'text/javascript'}, render(request, response.path.route.destination)]
+        if route
+          render(request, route)
         else
-          raise @router.inspect
-          [404, {"Content-Type" => 'text/plain'}, "not found: #{request.path}"]
+          [404, {"Content-Type" => 'text/plain'}, "not found: #{request.path}\n\n" +
+              "All routes: \n#{@router.print_routes}"
+          ]
         end
       }
- 
-      # call middlewares (with this app's logic being the most inner app)
+
+      middlewares.each do |middleware|
+        rack_app = middleware.new rack_app
+      end
+
       rack_app.call environment
     end
 
     def render(request, destination)
       button_klass, method_name = destination[:button], destination[:method]
-      button_klass.new(request).call_method(method_name)
+
+      response_code = 200
+      headers = {"Content-Type" => 'text/javascript'}
+      content = button_klass.new(request).call_method(method_name)
+
+      [response_code, headers, content]
     end
   end
 end

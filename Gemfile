@@ -3,7 +3,6 @@ gem "facets"
 gem "json"
 
 gem "rack", ">= 1.0.1"
-gem "usher"
 
 if RUBY_PLATFORM == "java"
   # no additional gems required

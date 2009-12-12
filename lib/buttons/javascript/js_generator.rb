@@ -5,7 +5,7 @@ module Buttons
     class JsGenerator
       def initialize(button)
         @button = button
-        @compressor = YUI::JavaScriptCompressor.new
+        # @compressor = YUI::JavaScriptCompressor.new
       end
 
       def to_js
@@ -17,7 +17,8 @@ module Buttons
           })();
         ]
         
-        @compressor.compress(js)
+        # @compressor.compress(js)
+        js.strip_whitespace
       end
     end
   end
