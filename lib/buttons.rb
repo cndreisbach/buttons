@@ -11,4 +11,6 @@ module Buttons
   end
 end
 
+require Buttons.dir('application')
+require Buttons.dir('button')
 require Buttons.dir('javascript')

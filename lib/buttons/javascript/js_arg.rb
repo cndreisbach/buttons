@@ -1,23 +1,35 @@
 module Buttons
   module Javascript
     class JsArg < JsVar
-      attr_reader :name, :default
+      attr_reader :name
 
       def initialize(var)
-        name, @default = *var
-        super(name)
-        if @name.to_s.slice(0,1) == '*'
-          @name = @name.slice(1, @name.length)
-          @multiple = true
+        @var = var
+        super(@var.name)        
+      end
+
+      def method_missing(*args, &block)
+        @var.send(*args, &block)
+      end
+      
+      def default
+        @var.default.to_json
+      end
+      
+      def to_param
+        if multiple? then nil else name end
+      end
+      
+      def to_default(index)
+        if multiple?
+          %Q[var #{name} = arguments.slice(#{index});]
+        elsif optional?
+          %Q[
+            if (#{name} === undefined) {
+              #{name} = #{default};
+            }
+          ]
         end        
-      end
-
-      def multiple?
-        @multiple
-      end
-
-      def optional?
-        !@default.nil?
       end
     end 
   end
