@@ -5,14 +5,15 @@ module Buttons
 
       def initialize(name, http_method, url, args)
         super(name)
+
         @http_method = http_method
         @url = url
         @args = args.map { |arg| JsArg.new(arg) }
       end
       
-      def to_js
+      def to_js(namespace = 'this')
         %Q[
-          this.#{name} = function #{name} (#{args_to_param_list}, _ajaxOptions) {
+          #{namespace}.#{name} = function (#{args_to_param_list}, _ajaxOptions) {
             #{args_to_defaults}
             #{assign_args_to_js_object}
             #{ajax_call}

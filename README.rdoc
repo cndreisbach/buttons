@@ -1,0 +1,74 @@
+= Buttons
+
+<b>NOTE: This is a very early version of Buttons. Expect it to change rapidly.</b>
+
+Buttons is a Rack framework for working with JavaScript-heavy applications. It
+automatically creates Ajax endpoints for Ruby methods, and creates a set of
+JavaScript functions to access those endpoints.
+
+== Example
+
+Here's an example. The Ruby class below will automatically generate the
+JavaScript found beneath it. For now, we only generate code that relies on
+jQuery, but that's planned to change.
+
+Ruby code:
+
+    class ProfileButton < Buttons::Button
+      get :show
+      post :login
+    
+      def login(username, password)
+        # The variable's set just to show that it's being returned.      
+        token = generate_login_token(username, password)
+        token
+      end
+      
+      def show(profile_id)
+        Profile.find(profile_id)
+      end
+    end
+    
+JavaScript code (found at /profile.js):
+
+    (function () {
+      this.Profile = {};
+
+      Profile.login = function (username, password, _ajaxOptions) {
+        var data = { 'username': username, 'password': password };
+        if (_ajaxOptions === undefined || typeof(_ajaxOptions) != "object") {
+          _ajaxOptions = {};
+        }
+        _ajaxOptions['type'] = "POST";
+        _ajaxOptions['url'] = "/profile/login";
+        _ajaxOptions['data'] = data;
+
+        if (_ajaxOptions['dataType'] === 'undefined') {
+          _ajaxOptions['dataType'] = 'json';
+        }
+
+        return jQuery.ajax(_ajaxOptions);
+      };
+
+      Profile.show = function (profileId, _ajaxOptions) {
+        var data = { 'profile_id': profileId };
+        if (_ajaxOptions === undefined || typeof(_ajaxOptions) != "object") {
+          _ajaxOptions = {};
+        }
+        _ajaxOptions['type'] = "GET";
+        _ajaxOptions['url'] = "/profile/show";
+        _ajaxOptions['data'] = data;
+
+        if (_ajaxOptions['dataType'] === 'undefined') {
+          _ajaxOptions['dataType'] = 'json';
+        }
+
+        return jQuery.ajax(_ajaxOptions);
+      };
+    })();
+    
+== How to use this
+
+Run <tt>buttons <directory></tt> to create a new Buttons application in that
+directory. There's not any helpers or generators yet, but you can look at the
+generated application to figure it out for now.

@@ -11,8 +11,10 @@ module Buttons
       def to_js
         js = %Q[
           (function () {
+            this.#{@button.namespace.capitalize} = {};
+
             #{@button.js_functions.map { |function| 
-              function.to_js 
+              function.to_js(@button.namespace.capitalize)
             }.join("\n")}
           })();
         ]

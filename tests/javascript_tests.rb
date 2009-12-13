@@ -39,7 +39,7 @@ context "a JsFunction" do
     topic.to_js
   }.equals(
     %Q[
-      this.login = function login (username, password, rememberMe, _ajaxOptions) {
+      this.login = function (username, password, rememberMe, _ajaxOptions) {
         if (rememberMe === undefined) { rememberMe = true; }
         var data = { 'username': username, 'password': password, 'remember_me': rememberMe };
         if (_ajaxOptions === undefined || typeof(_ajaxOptions) != "object") {
@@ -68,7 +68,7 @@ context "a JsFunction with a star argument" do
     topic.to_js
   }.equals(
     %Q[
-      this.addUsers = function addUsers (adminUsername, adminPassword, newUsers, _ajaxOptions) {
+      this.addUsers = function (adminUsername, adminPassword, newUsers, _ajaxOptions) {
         var data = { 'admin_username': adminUsername, 'admin_password': adminPassword, 'new_users[]': newUsers };
         if (_ajaxOptions === undefined || typeof(_ajaxOptions) != "object") {
           _ajaxOptions = {};

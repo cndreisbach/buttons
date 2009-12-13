@@ -29,10 +29,11 @@ module Buttons
     def call(environment)
       rack_app = lambda { |env|
         request = ::Rack::Request.new(env)
+        response = ::Rack::Response.new
         route = @router.recognize(request)
 
         if route
-          render(request, route)
+          render(request, response, route)
         else
           [404, {"Content-Type" => 'text/plain'}, "not found: #{request.path}\n\n" +
               "All routes: \n#{@router.print_routes}"
@@ -51,17 +52,17 @@ module Buttons
       rack_app.call environment
     end
 
-    def render(request, params)
+    def render(request, response, params)
       button_klass, method_name = params[:button], params[:method]
 
-      response_code = 200
-      headers = {"Content-Type" => 'text/javascript'}
+      response['Content-Type'] = 'text/javascript'
       content = button_klass.new(request).call_method(method_name)
       if conversion = params.delete(:convert)
         content = content.send(conversion)
       end
+      response.write(content)
 
-      [response_code, headers, content]
+      response.finish
     end
   end
 end

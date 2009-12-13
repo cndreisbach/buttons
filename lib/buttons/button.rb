@@ -17,8 +17,8 @@ module Buttons
     end
     
     class << self
-      def inherited(base)
-        Buttons.app.add_route(:get, "/#{base.to_s.debuttonize}.js", 
+      def inherited(base)        
+        Buttons.app.add_route(:get, "/#{base.namespace}.js",
           :button => base, :method => :to_js)
       end
 
@@ -28,6 +28,10 @@ module Buttons
             setup_route(http_method, instance_method(name))
           end
         end
+      end
+
+      def namespace
+        self.to_s.debuttonize
       end
 
       def js_functions
@@ -72,7 +76,7 @@ module Buttons
 
       def setup_route(http_method, method)
         name = method.name
-        route_path = "/#{self.to_s.debuttonize}/#{name}"
+        route_path = "/#{namespace}/#{name}"
         argument_list[name] = method.get_argument_list
         js_functions << Buttons::Javascript::JsFunction.new(
           name, http_method, route_path, method.get_argument_list)
