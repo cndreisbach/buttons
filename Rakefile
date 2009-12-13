@@ -17,6 +17,7 @@ JavaScript functions to access those endpoints."
     gemspec.add_dependency('json')
     gemspec.add_dependency('rack', '>= 1.0.1')
     gemspec.add_dependency('bundler')
+    gemspec.add_dependency('rubigen')
     gemspec.add_development_dependency('riot')
 
 #    if RUBY_PLATFORM != 'java' && RUBY_VERSION < "1.9"
