@@ -1,21 +1,29 @@
-require Buttons.dir('router')
+require Buttons.lib_root('router')
+require Buttons.lib_root('config')
 
 module Buttons
-  def self.app
-    @app ||= Buttons::Application.new
-    @app
-  end
-  
   class Application
-    attr :middlewares
+    include Buttons::Config
 
-    def initialize
-      @router = Buttons::Router.new
-      @middlewares = []
+    def initialize(&block)
+      @router ||= Buttons::Router.new
+      @middlewares ||= []
+    end
+
+    def use(middleware, options = nil)
+      @middlewares << [middleware, options]
+    end
+
+    def start
+      unless app_root.nil?
+        Dir[app_root('app', '**', '*.rb')].each do |ruby_file|
+          require ruby_file
+        end
+      end
     end
     
-    def add_route(http_method, path, button, method)
-      @router.add_route(http_method, path, :button => button, :method => method)
+    def add_route(http_method, path, params)
+      @router.add_route(http_method, path, params)
     end
     
     def call(environment)
@@ -32,19 +40,26 @@ module Buttons
         end
       }
 
-      middlewares.each do |middleware|
-        rack_app = middleware.new rack_app
+      @middlewares.each do |middleware, options|
+        rack_app = if options
+          middleware.new(rack_app, options)
+        else
+          middleware.new(rack_app)
+        end
       end
 
       rack_app.call environment
     end
 
-    def render(request, destination)
-      button_klass, method_name = destination[:button], destination[:method]
+    def render(request, params)
+      button_klass, method_name = params[:button], params[:method]
 
       response_code = 200
       headers = {"Content-Type" => 'text/javascript'}
       content = button_klass.new(request).call_method(method_name)
+      if conversion = params.delete(:convert)
+        content = content.send(conversion)
+      end
 
       [response_code, headers, content]
     end

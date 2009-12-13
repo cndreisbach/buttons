@@ -30,7 +30,7 @@ end
 
 context "a JsFunction" do
   setup {
-    JsFunction.new(:login, GetArgs::ArgumentList.new(
+    JsFunction.new(:login, :post, '/login', GetArgs::ArgumentList.new(
       [ [:username], [:password], [:remember_me, true] ]
     ))
   }
@@ -38,13 +38,28 @@ context "a JsFunction" do
   should("emit JavaScript") {
     topic.to_js
   }.equals(
-    %Q[var login = function login (username, password, rememberMe) { if (rememberMe === undefined) { rememberMe = true; } var data = { username: username, password: password, remember_me: rememberMe }; };]
+    %Q[
+      this.login = function login (username, password, rememberMe, _ajaxOptions) {
+        if (rememberMe === undefined) { rememberMe = true; }
+        var data = { 'username': username, 'password': password, 'remember_me': rememberMe };
+        if (_ajaxOptions === undefined || typeof(_ajaxOptions) != "object") {
+          _ajaxOptions = {};
+        }
+        _ajaxOptions['type'] = "POST";
+        _ajaxOptions['url'] = "/login";
+        _ajaxOptions['data'] = data; 
+        if (_ajaxOptions['dataType'] === 'undefined') {
+          _ajaxOptions['dataType'] = 'json';
+        }
+        return jQuery.ajax(_ajaxOptions);
+      };
+    ].strip_whitespace
   )
 end
 
 context "a JsFunction with a star argument" do
   setup {
-    JsFunction.new(:add_users, GetArgs::ArgumentList.new(
+    JsFunction.new(:add_users, :post, '/add_users', GetArgs::ArgumentList.new(
       [ [:admin_username], [:admin_password], ["*new_users"] ]
     ))
   }
@@ -52,6 +67,20 @@ context "a JsFunction with a star argument" do
   should("emit JavaScript") {
     topic.to_js
   }.equals(
-    %Q[var addUsers = function addUsers (adminUsername, adminPassword) { var newUsers = arguments.slice(2); var data = { admin_username: adminUsername, admin_password: adminPassword, new_users: newUsers }; };]
+    %Q[
+      this.addUsers = function addUsers (adminUsername, adminPassword, newUsers, _ajaxOptions) {
+        var data = { 'admin_username': adminUsername, 'admin_password': adminPassword, 'new_users[]': newUsers };
+        if (_ajaxOptions === undefined || typeof(_ajaxOptions) != "object") {
+          _ajaxOptions = {};
+        }
+        _ajaxOptions['type'] = "POST";
+        _ajaxOptions['url'] = "/add_users";
+        _ajaxOptions['data'] = data; 
+        if (_ajaxOptions['dataType'] === 'undefined') {
+          _ajaxOptions['dataType'] = 'json';
+        }
+        return jQuery.ajax(_ajaxOptions);
+      };
+    ].strip_whitespace
   )
 end

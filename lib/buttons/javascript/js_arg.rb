@@ -16,14 +16,8 @@ module Buttons
         @var.default.to_json
       end
       
-      def to_param
-        if multiple? then nil else name end
-      end
-      
       def to_default(index)
-        if multiple?
-          %Q[var #{name} = arguments.slice(#{index});]
-        elsif optional?
+        if optional?
           %Q[
             if (#{name} === undefined) {
               #{name} = #{default};

@@ -3,14 +3,22 @@ require File.expand_path(File.join(File.dirname(__FILE__),
 require 'facets'
 
 module Buttons
-  LIB_ROOT = File.dirname(__FILE__)
+  def self.lib_root(*paths)
+    File.expand_path(File.join(File.dirname(__FILE__), 'buttons', *paths))
+  end
 
-  def self.dir(*paths)
-    File.expand_path(File.join(LIB_ROOT, 'buttons', *paths))
+  def self.app(&block)
+    @app ||= Buttons::Application.new
+    @app.instance_eval(&block) unless block.nil?
+    @app
+  end
+
+  def self.configure
+    yield app if block_given?
   end
 end
 
-require Buttons.dir('core_ext/string')
-require Buttons.dir('application')
-require Buttons.dir('javascript')
-require Buttons.dir('button')
+require Buttons.lib_root('core_ext/string')
+require Buttons.lib_root('application')
+require Buttons.lib_root('javascript')
+require Buttons.lib_root('button')
