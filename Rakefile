@@ -25,6 +25,8 @@ JavaScript functions to access those endpoints."
 #      gemspec.add_dependency('ruby2ruby')
 #    end
   end
+  
+  Jeweler::GemcutterTasks.new
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install jeweler"
 end
